@@ -1,166 +1,113 @@
+import axios from 'axios' // 引用axios
+import Qs from 'qs' //引入数据格式化
+// import router from '@/router'
+
+// axios 配置
+axios.defaults.timeout = 50000 //设置接口响应时间
+axios.defaults.baseURL = 'http://localhost' // 这是调用数据接口,公共接口url+调用接口名
+
+axios.interceptors.request.use(
+    config => {
+        console.log('请求路径', config.url)
+        config.token="ahsdkhagshgfgfhdfd845645"
+            config.headers = {
+                'Content-Type': 'application/x-www-form-urlencoded' // 设置跨域头部
+            }
+            config.data = JSON.stringify(config.data)
+            return config
+    },
+    err => {
+        return Promise.reject(err)
+    }
+)
+
+// http response 拦截器
+axios.interceptors.response.use(
+    response => {
+        return response
+    },
+    error => {
+        return Promise.reject(error.response.data)
+    }
+)
+
+export default axios
+
 /**
- * axios 网络请求封装
+ * fetch 请求方法
+ * @param url
+ * @param params
+ * @returns {Promise}
  */
-import axios from 'axios'
-import Vue from 'vue'
-import router from '../router'
-import url from '../conf/http_conf'
-import store from '../store'
-import qs from 'qs'
-
-const port = '';
-const http_url = url + (port == '' ? '' : (':' + port)) + '/'
-
-
-const instance = axios.create();
-
-
-instance.defaults.baseURL = http_url;
-
-const isFormData = (v) => {
-    return Object.prototype.toString.call(v) === '[object FormData]';
+export function get(url, params = {}) {
+    return new Promise((resolve, reject) => {
+        axios
+            .get(url, {
+                params: params
+            })
+            .then(response => {
+                resolve(response.data)
+            })
+            .catch(err => {
+                reject(err)
+            })
+    })
 }
 
 /**
- *axios 全局 拦截器
+ * post 请求方法
+ * @param url
+ * @param data
+ * @returns {Promise}
  */
-instance.interceptors.response.use(function(response) {
-    //这里统一处理服务器code
-
-    const Code = response.data.code;
-
-    if (Code === undefined) {
-        return response.data;
-    }
-
-    if (Code.toString().length === 3) {
-        if (Code === 200) {
-            return response.data.data;
-        } else if (Code == 501) {
-            console.error('后台服务出错');
-            return Promise.reject(response.data);
-        }
-    } else if (Code.toString().length === 5) {
-        //自定义错误码
-        if (Code === 25030) {
-
-            Vue.prototype.$token = localStorage.token = '';
-
-            store.commit('setToken', '');
-            store.commit('setLoginStatus', false);
-
-            // if (needAuth) {
-            //     //判断该页面是否需要登录状态
-            //     console.error('登录过期了');
-            //     router.push({
-            //         path: '/Login'
-            //     });
-            // }
-            return Promise.reject(response.data);
-        }
-        // console.error('[' + Code + ']' + response.data.message);
-        return Promise.reject(response.data);
-    }
-
-}, function(error) {
-    console.error('网络出错了!');
-    return Promise.reject(error.response.data);
-});
-
-/**
- * Request
- * @param {String} url
- * @param {Object} options request参数
- * @param {Boolean} tokenFlag 是否置入token,默认为true
- */
-export const request = (url, options = {}, tokenFlag = true) => {
-    if (tokenFlag) {
-        //置入token
-        options.headers = {
-            'token': Vue.prototype.$token
-        }
-    }
-    options = {
-        url,
-        ...options
-    }
-    return instance.request(options);
+export function post(url, data = {}) {
+    return new Promise((resolve, reject) => {
+        axios.post(url, data).then(
+            response => {
+                // console.log(response.data.code)
+                resolve(response.data)
+            },
+            err => {
+                reject(err)
+            }
+        )
+    })
 }
 
 /**
- * POST
- * @param {String} url
- * @param {Object} data data参数
- * @param {Boolean} tokenFlag 是否置入token,默认为true
+ * patch 方法封装
+ * @param url
+ * @param data
+ * @returns {Promise}
  */
-export const POST = (url, data = {}, tokenFlag = true) => {
-    const options = {};
-    if (tokenFlag) {
-        //置入token
-        options.headers = {
-            'token': Vue.prototype.$token,
-            // 'Content-Type': 'application/x-www-form-urlencoded'
-            'Content-Type': 'application/json',
-            "requestType": '1'
-        }
-    }
-    // if (!isFormData(data)) data = qs.stringify(data);
-    return instance.post(url, data, options);
+export function patch(url, data = {}) {
+    return new Promise((resolve, reject) => {
+        axios.patch(url, data).then(
+            response => {
+                resolve(response.data)
+            },
+            err => {
+                reject(err)
+            }
+        )
+    })
 }
 
 /**
- * GET
- * @param {String} url
- * @param {Object} data data参数
- * @param {Boolean} tokenFlag 是否置入token,默认为true
+ * put 方法封装
+ * @param url
+ * @param data
+ * @returns {Promise}
  */
-export const GET = (url, options = {}, tokenFlag = true) => {
-    if (tokenFlag) {
-        //置入token
-        options.headers = {
-            'token': Vue.prototype.$token,
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-    }
-    return instance.get(url, options);
+export function put(url, data = {}) {
+    return new Promise((resolve, reject) => {
+        axios.put(url, data).then(
+            response => {
+                resolve(response.data)
+            },
+            err => {
+                reject(err)
+            }
+        )
+    })
 }
-
-
-/**
- * PUT
- * @param {String} url
- * @param {Object} data data参数
- * @param {Boolean} tokenFlag 是否置入token,默认为true
- */
-export const PUT = (url, params = {}, tokenFlag = true) => {
-    const options = {};
-    if (tokenFlag) {
-        //置入token
-        options.headers = {
-            'token': Vue.prototype.$token
-        }
-    }
-    return instance.put(url, params, options);
-}
-
-
-/**
- * DELETE
- * @param {String} url
- * @param {Object} data data参数
- * @param {Boolean} tokenFlag 是否置入token,默认为true
- */
-export const DELETE = (url, params = {}, tokenFlag = true) => {
-    const options = {
-        data: params
-    };
-    if (tokenFlag) {
-        //置入token
-        options.headers = {
-            'token': Vue.prototype.$token
-        }
-    }
-    return instance.delete(url, options);
-}
-
-export default request

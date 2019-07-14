@@ -8,6 +8,7 @@ import collectionRouter from './routerModule/collection'
 import upsetRouter from './routerModule/upset'
 import loginRouter from './routerModule/login'
 import addressRouter from './routerModule/address'
+import goodsRouter from './routerModule/goods'
 import PageLayer from '@/components/layer/PageLayer'
 
 Vue.use(Router)
@@ -20,6 +21,7 @@ let routeArr = [].concat(
     collectionRouter,
     upsetRouter,
     loginRouter,
+    goodsRouter,
     addressRouter
 );
 

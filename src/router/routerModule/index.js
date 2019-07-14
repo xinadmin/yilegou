@@ -4,14 +4,24 @@ const Translate = () =>
     import ( /* webpackChunkName: "Index" */ '@/components/views/index/translate')
 
 export default [{
-    path: '/index',
+    path: '/',
     name: 'Index',
     component: Index,
     meta: {
         title: '首页',
         mode: 'Nav',
     }
-},{
+},
+    {
+        path: '/index',
+        name: 'Index',
+        component: Index,
+        meta: {
+            title: '首页',
+            mode: 'Nav',
+        }
+    },
+    {
     path: '/Translate',
     name: 'Translate',
     component: Translate,
